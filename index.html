@@ -1,23 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Life in The Go</title>
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;font-family:Segoe UI, sans-serif;}
 body{
-  margin:0;font-family:Segoe UI,sans-serif;color:#fff;
-  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
-  url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
-  background-size:cover;background-position:center;min-height:100vh;
+  margin:0;
+  min-height:100vh;
+  background:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee') center/cover fixed;
+  color:#fff;
 }
-.screen{display:none;padding:24px;animation:fade .5s ease}
-.show{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(16px)}to{opacity:1}}
+.overlay{
+  background:rgba(0,0,0,0.6);
+  min-height:100vh;
+  padding:20px;
+}
+h1{text-align:center;margin-top:10px;}
+.card{
+  background:rgba(255,255,255,0.1);
+  border-radius:16px;
+  padding:20px;
+  max-width:380px;
+  margin:30px auto;
+  backdrop-filter:blur(6px);
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+}
+input{background:#fff;color:#000;}
+button{
+  background:linear-gradient(135deg,#00c6ff,#0072ff);
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:hover{opacity:.9;}
+.link{text-align:center;margin-top:10px;cursor:pointer;color:#00e5ff;}
+.hidden{display:none;}
 
-.logo{
-  width:88px;height:88px;border-radius:50%;margin:18px auto;
-  background:#1e88e5;display:flex;align-items:center;justify-content:center;
-  font-size:34px;font-weight:700;box-shadow
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:20px;
+}
+.box{
+  background:rgba(255,255,255,0.15);
+  border-radius:14px;
+  padding:20px;
+  text-align:center;
+  font-size:18px;
+  transition:.3s;
+}
+.box:hover{background:rgba(255,255,255,0.25);transform:scale(1.05);}
+.master{
+  background:#ff9800;
+  color:#000;
+  font-weight:bold;
+}
+.footer{text-align:center;margin-top:40px;font-size:14px;opacity:.7;}
+</style>
+</head>
+
+<body>
+<div class="overlay">
+
+<h1>🌱 Life in The Go</h1>
+
+<!-- LOGIN -->
+<div class="card" id="loginCard">
+  <h2>Welcome</h2>
+  <input id="loginId" placeholder="Gmail or Phone">
+  <input id="loginPass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <div class="link" onclick="showSignup()">Create Account</div>
+</div>
+
+<!-- SIGNUP -->
+<div class="card hidden" id="signupCard">
+  <h2>Create Account</h2>
+  <input id="signId" placeholder="Gmail or Phone">
+  <input id="signPass" type="password" placeholder="New Password">
+  <button onclick="signup()">Sign Up</button>
+  <div class="link" onclick="showLogin()">Back to Login</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card hidden" id="dash">
+  <h2 id="userTitle"></h2>
+
+  <div class="grid">
+    <div class="box">📷 Photo</div>
+    <div class="box">🎥 Video</div>
+    <div class="box">📝 Notes</div>
+    <div class="box">💾 Save</div>
+  </div>
+
+  <div class="box master" onclick="openMaster()">👑 Master Panel</div>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- MASTER -->
+<div class="card hidden" id="master">
+  <h2>👑 Master Panel</h2>
+  <div id="userList"></div>
+  <button onclick="closeMaster()">Close</button>
+</div>
+
+<div class="footer">© Durjoy – Life in The Go</div>
+
+</div>
+
+<script>
+let users = JSON.parse(localStorage.getItem("users")||"{}");
+let current="";
+
+function showSignup(){
+  loginCard.classList.add("hidden");
+  signupCard.classList.remove("hidden");
+}
+function showLogin(){
+  signupCard.classList.add("hidden");
+  loginCard.classList.remove("hidden");
+}
+
+function signup(){
+  let id=signId.value.trim();
+  let pass=signPass.value;
+  if(!id||!pass) return alert("সব দিতে হবে");
+  if(users[id]) return alert("Account already আছে");
+  users[id]={pass};
+  localStorage.setItem("users",JSON.stringify(users));
+  alert("Account Created");
+  showLogin();
+}
+
+function login(){
+  let id=loginId.value.trim();
+  let pass=loginPass.value;
+  if(users[id] && users[id].pass===pass){
+    current=id;
+    userTitle.innerText="Welcome, "+id;
+    loginCard.classList.add("hidden");
+    dash.classList.remove("hidden");
+  }else{
+    alert("Wrong login");
+  }
+}
+
+function logout(){
+  current="";
+  dash.classList.add("hidden");
+  loginCard.classList.remove("hidden");
+}
+
+function openMaster(){
+  let mp=prompt("Enter Master Password");
+  if(mp==="durjoy123"){
+    master.classList.remove("hidden");
+    dash.classList.add("hidden");
+    let html="";
+    Object.keys(users).forEach(u=>{
+      html+="• "+u+"<br>";
+    });
+    userList.innerHTML=html||"No users";
+  }else alert("Wrong master password");
+}
+function closeMaster(){
+  master.classList.add("hidden");
+  dash.classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
